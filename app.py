@@ -121,16 +121,16 @@ if st.session_state.tasks:
             done_key = f"done_{i}"
             with st.container():
                 with st.form(done_key):
-                    if st.form_submit_button("✅", use_container_width=True, key=done_key, help="Mark as Done", type="secondary"):
+                    if st.form_submit_button("✅", use_container_width=True, help="Mark as Done", type="secondary"):
                         st.session_state.tasks[i]["done"] = not st.session_state.tasks[i]["done"]
         with cols[2]:
             delete_key = f"delete_{i}"
             with st.container():
                 with st.form(delete_key):
-                    if st.form_submit_button("🗑️", use_container_width=True, key=delete_key, help="Delete Task", type="secondary"):
+                    if st.form_submit_button("🗑️", use_container_width=True, help="Delete Task", type="secondary"):
                         st.session_state.tasks.pop(i)
                         st.rerun()
 else:
     st.info("No tasks yet. Add one above!")
 
-st.markdown("<br><center>✨ Designed with ❤️ using Streamlit ✨</center>", unsafe_allow_html=True)
+st.markdown("<br><center>✨ Designed with  Streamlit ✨</center>", unsafe_allow_html=True)
