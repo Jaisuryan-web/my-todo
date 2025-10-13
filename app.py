@@ -1,120 +1,136 @@
 import streamlit as st
-import json
-from pathlib import Path
-from datetime import datetime
 
-# --- Page config MUST come first ---
+# ⚙️ Must be the first Streamlit command
 st.set_page_config(page_title="📝 Stylish To-Do App", page_icon="📝", layout="centered")
 
-DATA_FILE = Path("tasks.json")
-
-# --- Utility Functions ---
-def load_tasks():
-    if DATA_FILE.exists():
-        with open(DATA_FILE, "r") as f:
-            return json.load(f)
-    return []
-
-def save_tasks(tasks):
-    with open(DATA_FILE, "w") as f:
-        json.dump(tasks, f, indent=2)
-
-# --- Inject CSS for styling ---
-st.markdown(
-    """
+# 🌈 --- Custom CSS Styling ---
+st.markdown("""
     <style>
-    /* Base button style */
-    .stButton>button {
+    /* Background gradient */
+    body {
+        background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+        color: #ffffff;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    /* Frosted glass card for content */
+    .main {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+    }
+
+    /* Headings */
+    h1 {
+        text-align: center;
+        font-weight: 700;
+        color: #f5f5f5;
+    }
+
+    /* Task item style */
+    .task-item {
+        background: rgba(255, 255, 255, 0.05);
         border-radius: 12px;
-        padding: 8px 16px;
-        font-weight: bold;
-        transition: 0.3s;
-        color: white;
+        padding: 1rem;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: transform 0.2s ease;
+    }
+    .task-item:hover {
+        transform: scale(1.02);
     }
 
-    /* Done button: green inner glow on hover */
-    .stButton>button:has(span:contains("Done")) {
-        background-color: #1f77b4;
-        border: 2px solid #4CAF50;
-    }
-    .stButton>button:has(span:contains("Done")):hover {
-        background-color: #4CAF50;
-        box-shadow: inset 0 0 10px #4CAF50;
-    }
-
-    /* Delete button: red inner glow on hover */
-    .stButton>button:has(span:contains("Delete")) {
-        background-color: #b71c1c;
-        border: 2px solid #b71c1c;
-    }
-    .stButton>button:has(span:contains("Delete")):hover {
-        background-color: #ff1744;
-        box-shadow: inset 0 0 10px #ff1744;
-    }
-
-    /* Task card */
-    .task-card {
-        border: 1px solid #eee;
+    /* Buttons */
+    .stButton>button {
         border-radius: 10px;
-        padding: 10px 15px;
-        margin-bottom: 8px;
-        transition: 0.3s;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        padding: 0.4rem 1rem;
+        border: 2px solid transparent;
     }
-    .task-card:hover {
-        box-shadow: 0 0 10px #1f77b4;
-        border-color: #1f77b4;
+
+    /* Add Button */
+    .stButton>button[kind="primary"] {
+        background-color: #1dd1a1;
+        color: white;
+        box-shadow: 0 0 10px rgba(29, 209, 161, 0.4);
+    }
+    .stButton>button[kind="primary"]:hover {
+        box-shadow: 0 0 20px #1dd1a1, 0 0 40px #10ac84 inset;
+        transform: translateY(-2px);
+    }
+
+    /* Done Button */
+    .done-btn>button {
+        background-color: transparent !important;
+        color: #1dd1a1 !important;
+        border: 2px solid #1dd1a1 !important;
+        box-shadow: 0 0 10px rgba(29, 209, 161, 0.3);
+    }
+    .done-btn>button:hover {
+        box-shadow: 0 0 20px #1dd1a1, 0 0 20px #1dd1a1 inset;
+        background-color: rgba(29, 209, 161, 0.2) !important;
+    }
+
+    /* Delete Button */
+    .delete-btn>button {
+        background-color: transparent !important;
+        color: #ff6b6b !important;
+        border: 2px solid #ff6b6b !important;
+        box-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
+    }
+    .delete-btn>button:hover {
+        box-shadow: 0 0 20px #ff6b6b, 0 0 20px #ff6b6b inset;
+        background-color: rgba(255, 107, 107, 0.2) !important;
     }
     </style>
-    """,
-    unsafe_allow_html=True
-)
+""", unsafe_allow_html=True)
 
-# --- App UI ---
+# 🧠 --- App Logic ---
+if "tasks" not in st.session_state:
+    st.session_state.tasks = []
+
 st.title("📝 Stylish To-Do App")
 
-# Add Task Section
-st.header("Add New Task")
-with st.form("add_task", clear_on_submit=True):
-    task_name = st.text_input("Task Name")
-    category = st.text_input("Category", "General")
-    due = st.date_input("Due Date", value=datetime.today())
-    submitted = st.form_submit_button("Add Task")
-    if submitted:
-        tasks = load_tasks()
-        tasks.append({
-            "task": task_name,
-            "category": category,
-            "due": due.strftime("%Y-%m-%d"),
-            "done": False
-        })
-        save_tasks(tasks)
-        st.success(f"✅ Added: {task_name}")
+# Add new task
+task = st.text_input("Enter a new task:")
+if st.button("➕ Add Task", type="primary"):
+    if task:
+        st.session_state.tasks.append({"task": task, "done": False})
+        st.success("Task added successfully!")
 
-# Display Tasks
-st.header("Tasks")
-tasks = load_tasks()
-if tasks:
-    for i, t in enumerate(tasks, 1):
-        status = "✔️" if t["done"] else "❌"
-        st.markdown(
-            f'<div class="task-card"><b>{i}. {t["task"]}</b> | {t["category"]} | Due: {t["due"]} | {status}</div>',
-            unsafe_allow_html=True
-        )
+st.divider()
 
-        col1, col2 = st.columns([1, 1])
-
-        # Done button
-        done_button = col1.button("✅ Done", key=f"done_{i}")
-        if done_button:
-            t["done"] = True
-            save_tasks(tasks)
-            st.experimental_rerun()
-
-        # Delete button
-        delete_button = col2.button("🗑 Delete", key=f"del_{i}")
-        if delete_button:
-            tasks.pop(i-1)
-            save_tasks(tasks)
-            st.experimental_rerun()
+# Display tasks
+if st.session_state.tasks:
+    for i, t in enumerate(st.session_state.tasks):
+        cols = st.columns([6, 1, 1])
+        with cols[0]:
+            st.markdown(f"""
+                <div class="task-item">
+                    <span style="text-decoration: {'line-through' if t['done'] else 'none'};">
+                        {t['task']}
+                    </span>
+                </div>
+            """, unsafe_allow_html=True)
+        with cols[1]:
+            done_key = f"done_{i}"
+            with st.container():
+                with st.form(done_key):
+                    if st.form_submit_button("✅", use_container_width=True, key=done_key, help="Mark as Done", type="secondary"):
+                        st.session_state.tasks[i]["done"] = not st.session_state.tasks[i]["done"]
+        with cols[2]:
+            delete_key = f"delete_{i}"
+            with st.container():
+                with st.form(delete_key):
+                    if st.form_submit_button("🗑️", use_container_width=True, key=delete_key, help="Delete Task", type="secondary"):
+                        st.session_state.tasks.pop(i)
+                        st.rerun()
 else:
-    st.info("No tasks yet! 🎉")
+    st.info("No tasks yet. Add one above!")
+
+st.markdown("<br><center>✨ Designed with ❤️ using Streamlit ✨</center>", unsafe_allow_html=True)
