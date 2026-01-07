@@ -1,7 +1,7 @@
 import streamlit as st
 
 # ⚙️ Must be the first Streamlit command
-st.set_page_config(page_title="📝 Stylish To-Do App", page_icon="📝", layout="centered")
+st.set_page_config(page_title="📝 Modern To-Do App", page_icon="📝", layout="centered")
 
 # 🌈 --- Custom CSS Styling ---
 st.markdown("""
