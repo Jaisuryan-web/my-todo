@@ -34,7 +34,7 @@ def add(task, category, due):
         "done": False
     })
     save_tasks(tasks)
-    click.echo(f"✅ Task added: {task} [Category: {category}, Due: {due}]")
+    click.echo(f" Task added: {task} [Category: {category}, Due: {due}]")
 
 @cli.command()
 def list():
